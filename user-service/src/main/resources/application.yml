@@ -1,0 +1,50 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: USER-SERVICE
+  zipkin:
+    base-url: http://127.0.0.1:9411/
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+      circuitbreakers:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      USER:
+        register-health-indicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 2s
+        permitted-number-of-calls-in-half-open-state: 2
+        sliding-window-size: 5
+        sliding-window-type: count_based
+
+  retry:
+    instances:
+      USER:
+        max-attempts: 3
+        wait-duration: 3s
+
+#  ratelimiter:
+#    instances:
+#      USER:
+#        register-health-indicator: true
+#        limit-for-period: 5
+#        limit-refresh-period: 5s
+#        timeout-duration: 3s
+

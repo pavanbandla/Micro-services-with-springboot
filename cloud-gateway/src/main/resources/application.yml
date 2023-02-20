@@ -1,0 +1,54 @@
+server:
+  port: 9191
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: USER-SERVICE
+                fallbackUri: forward:/fallback/userServiceFallBackMethod
+
+        - id: DEPARTMENT-SERVICE
+          uri: lb://DEPARTMENT-SERVICE
+          predicates:
+            - Path=/departments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: DEPARTMENT-SERVICE
+                fallbackUri: forward:/fallback/departmentServiceFallBackMethod
+
+#resilience4j:
+#  circuitbreaker:
+#    instances:
+#      USER-SERVICE:
+#        register-health-indicator: true
+#        event-consumer-buffer-size: 10
+#        sliding-window-size: 5
+#        sliding-window-type: count_based
+#        slowCallDurationThreshold: 10s
+#        slowCallRateThreshold: 5
+
+
+#  retry:
+#    instances:
+#      USER:
+#        max-attempts: 3
+#        wait-duration: 3s
+#
+#  ratelimiter:
+#    instances:
+#      USER:
+#        register-health-indicator: true
+#        limit-for-period: 5
+#        limit-refresh-period: 5s
+#        timeout-duration: 3s
